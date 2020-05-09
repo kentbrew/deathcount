@@ -1,13 +1,25 @@
-<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>deathcount</title>
+    <meta charset="utf-8">
+    <title>Trump's Circle of Death</title>
+    <meta name="author" content="Kent Brewster">
+    <meta name="description" content="If you laid every American who died from COVID-19 in a circle around Trump Tower, this is how big it would be.">
+    <meta name="viewport" content="width=480, initial-scale=auto">
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@kentbrew" />
+    <meta property="twitter:title" content="Trump's Circle of Death" />
+    <meta property="twitter:description" content="If you laid every American who died from COVID-19 in a circle around Trump Tower, this is how big it would be." />
+    <meta name="twitter:image" content="https://deathcount.us/circle/twitter.jpg">
+    <meta property="og:url" content="http://deathcount.us/circle/" />
+    <meta property="og:title" content="Trump's Circle of Death" />
+    <meta property="og:description" content="If you laid every American who died from COVID-19 in a circle around Trump Tower, this is how big it would be." />
+    <meta property="og:image" content="https://deathcount.us/circle/og.jpg" />
+    <meta property="og:type" content="website" />
+    <link rel="shortcut icon" href="favicon.gif" type="image/gif">
     <style>
       body {
-        font-family: Verdana;
         text-align: center;
+        font-family: Tahoma;
         background: #000;
         color: #fff;
       }
@@ -15,9 +27,173 @@
         color: #ff0;
         text-decoration: none;
       }
+      div.tile {
+        height: 440px;
+        width: 420px;
+        font-size: smaller;
+        margin: 10px;
+        display: inline-block;
+      }
+      div.map {
+        height: 400px;
+        width: 400px;
+        background: transparent url() 0 0 no-repeat;
+        margin: 10px;
+        border-radius: 10px;
+      }
+      #ft {
+        margin-top: 20px;
+      }
     </style>
   </head>
   <body>
-    <h1 style="line-height:100vh;"><a href="./circle">Trump's Circle of Death</a></h1>
+    <h1>Trump's Circle of Death</h1>
+    <div id="hd"></div>
+    <div id="bd"></div>
+    <div id="ft">
+      <p>Had enough? Check with <a href="https://vote.org" target="_blank">Vote.org</a> to be sure you're ready for the next election.</p>
+      <a href="https://github.com/kentbrew/deathcount/blob/master/README.md" target="_blank">About</a> - 
+      <a href="https://twitter.com/kentbrew" target="_blank">Contact</a> - 
+      <a href="https://www.cdc.gov/covid-data-tracker/" target="_blank" target="_blank">Data</a> - 
+      <a href="https://neocities.org" target="_blank">Hosting</a>
+    </div>
+    <script>
+      // in case we don't get data
+      const mostRecent = {
+        date: "8 May 2020",
+        dead: 75477,
+      },
+      // 
+      bounds = [75000, 150000, 300000, 600000, 1200000, 2400000, 4800000],
+      hd = document.getElementById('hd'),
+      bd = document.getElementById('bd'),
+      // a list of properties for which we're going to draw a map. Each needs a name, latitude, and a map ID
+      properties = [ {
+          name: "Mar-a-Lago",
+          lat: 26.677084
+        }, {
+          name: "Trump International Hotel, Las Vegas",
+          lat: 36.127671
+        }, {
+          name: "Trump International Hotel, Washington DC",
+          lat: 38.8942404
+        }, {
+          name: "Trump National Golf Club, Bedminster",
+          lat: 40.653755
+        }, {
+          name: "Trump Tower, Manhattan",
+          lat: 40.762315
+        }, {
+          name: "Trump International Hotel & Tower, Chicago",
+          lat: 41.8888012
+      } ],
+      // Format a long number with commas, US-style
+      formatNumber = n => {
+        return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      },
+      // get a zoom level based on the number of dead that will make a cirlc
+      getZoomLevel = dead => {
+        let zoomLevel = 0;
+        bounds.filter((item, index) => {
+          if (item < dead) {
+            zoomLevel = index + 1;
+          }
+        });
+        return zoomLevel;
+      },
+      // get meters per pixel at a zoom level and latitude
+      getMetersPerPixel = (zoomLevel, latitude) => {
+        return 40075016.686 * Math.abs(Math.cos(latitude * Math.PI/180)) / Math.pow(2, zoomLevel + 8);
+      },
+      // get zoom level and circle radius
+      getZoomAndRadiusFor = (dead, latitude) => {
+        let zoomLevel = getZoomLevel(dead);
+        let metersPerPixel = getMetersPerPixel(10 - zoomLevel, latitude);
+        let circInFeet = dead * 6;
+        let radiusInMeters = (circInFeet * 0.3048 / 2 / Math.PI);
+        let radiusInPixels = radiusInMeters / metersPerPixel;
+        return { 
+          zoomLevel: zoomLevel,
+          radius: radiusInPixels,
+          circInMiles: Math.floor(circInFeet / 5280)
+        };
+      },
+      // make a map
+      makeMap = (x, y, name) => {
+        // create the container
+        const tile = document.createElement('DIV');
+        tile.className = "tile";
+        const map = document.createElement('DIV');
+        map.className = "map";
+        map.style.backgroundImage = `url("./zoom_${x}.jpg")`;
+        map.style.backgroundPositionY = `${(0 - y) * 400}px`;
+        tile.appendChild(map);
+        const p = document.createElement('P');
+        p.innerHTML = name;
+        tile.appendChild(p);
+        return tile;
+      },
+      // make a circle
+      makeCircle = (radius) => {
+        let canvas = document.createElement('CANVAS');
+        canvas.height = 400;
+        canvas.width = 400;
+        let ctx = canvas.getContext("2d");
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.strokeStyle = "#FF0000";
+        ctx.setLineDash([15, 3]);
+        ctx.arc(200, 200, radius, 0, Math.PI * 2, true);
+        ctx.stroke();
+        return canvas;
+      },
+      // render maps 
+      render = dead => {
+        dead = 65000;
+        let circ = "";
+        properties.filter((prop, index) => {
+          let zar = getZoomAndRadiusFor(dead, prop.lat);
+          let tile = makeMap(zar.zoomLevel, index, prop.name);
+          circ = zar.circInMiles;
+          tile.getElementsByClassName('map')[0].appendChild(makeCircle(zar.radius));
+          bd.appendChild(tile);
+        });
+        hd.innerHTML += `<p>${formatNumber(dead)} Americans have died of COVID-19 on Donald Trump's watch so far.</p>
+          <p>If you laid them out head to toe, they would make a circle ${circ} miles around.</p>
+          <p>Here's what an ${circ}-mile circle would look like around some Trump properties.</p>`;
+      },
+      // let's get this party started
+      init = () => {
+        // Fetch the data
+        fetch('https://www.cdc.gov/covid-data-tracker/Content/CoronaViewJson_01/US_MAP_DATA.json')
+          // Massage the result
+          .then(response => response.json())
+          // Hand it off for processing
+          .then(result => {
+            let found = false;
+            // Do we have an array of data?
+            if (result.US_MAP_DATA) {
+              // Find the right one
+              result.US_MAP_DATA.filter(item => {
+                if (item.abbr === "US") {
+                  // Render just the US death count
+                  render(item.tot_death);
+                  found = true;
+                }
+              })
+            }
+            return found;
+          }).then(found => {
+            if (!found) {
+              hd.innerHTML = "<p>Having trouble getting data from CDC, so here's what we saw on " + mostRecent.date + ".</p>";
+              render(mostRecent.dead);
+            }
+          });
+      };
+        
+      // kick it off
+      init();
+      
+    </script>
   </body>
 </html>
