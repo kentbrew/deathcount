@@ -4,6 +4,8 @@
     <title>Trump's Circle of Death</title>
     <link rel="canonical" href="https://deathcount.us/circle/" />
     <link rel="shortcut icon" href="favicon.gif" type="image/gif" />
+    <link rel="apple-touch-icon" href="ios.jpg" />
+    <meta name="apple-mobile-web-app-title" content="deathcount" />
     <meta name="author" content="Kent Brewster" />
     <meta name="description" content="If you laid every American who died from COVID-19 in a circle around Trump Tower, this is how big it would be." />
     <meta name="viewport" content="width=480, initial-scale=auto" />
@@ -20,9 +22,10 @@
     <style>
       body {
         text-align: center;
-        font-family: Tahoma;
+        font-family: Tahoma, "Helvetica Neue", Sans-serif;
         background: #000;
         color: #fff;
+        margin: 2vw 2vh;
       }
       a {
         color: #ff0;
@@ -31,8 +34,7 @@
       div.tile {
         height: 440px;
         width: 420px;
-        font-size: smaller;
-        margin: 10px;
+        margin: 20px 10px 10px;
         display: inline-block;
       }
       div.map {
@@ -55,7 +57,6 @@
       <p>Had enough? Check with <a href="https://vote.org" target="_blank">Vote.org</a> to be sure you're ready for the next election.</p>
       <a href="https://github.com/kentbrew/deathcount/blob/master/README.md" target="_blank">About</a> - 
       <a href="https://twitter.com/kentbrew" target="_blank">Contact</a> - 
-      <a href="https://www.cdc.gov/covid-data-tracker/" target="_blank" target="_blank">Data</a> - 
       <a href="https://neocities.org" target="_blank">Hosting</a>
     </div>
     <script>
@@ -140,10 +141,10 @@
         canvas.height = 400;
         canvas.width = 400;
         let ctx = canvas.getContext("2d");
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 5;
         ctx.beginPath();
         ctx.strokeStyle = "#FF0000";
-        ctx.setLineDash([15, 3]);
+        ctx.setLineDash([15, 5]);
         ctx.arc(200, 200, radius, 0, Math.PI * 2, true);
         ctx.stroke();
         return canvas;
@@ -158,9 +159,9 @@
           tile.getElementsByClassName('map')[0].appendChild(makeCircle(zar.radius));
           bd.appendChild(tile);
         });
-        hd.innerHTML += `<p>${formatNumber(dead)} Americans have died of COVID-19 on Donald Trump's watch so far.</p>
+        hd.innerHTML += `<p>${formatNumber(dead)} Americans <a href="https://www.cdc.gov/covid-data-tracker/" target="_blank">have died of COVID-19</a> on Donald Trump's watch so far.</p>
           <p>If you laid them out head to toe, they would make a circle ${circ} miles around.</p>
-          <p>Here's what an ${circ}-mile circle would look like around some Trump properties.</p>`;
+          <p>Here's what that ${circ}-mile circle would look like around some Trump properties.</p>`;
       },
       // let's get this party started
       init = () => {
