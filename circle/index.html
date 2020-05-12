@@ -53,8 +53,9 @@
     <h1>Trump's Circle of Death</h1>
     <div id="hd"></div>
     <div id="bd"></div>
+    <p id="ct"></p>
+    <p>Had enough? Check with <a href="https://vote.org" target="_blank">Vote.org</a> to be sure your voice is heard.</p>
     <div id="ft">
-      <p>Had enough? Check with <a href="https://vote.org" target="_blank">Vote.org</a> to be sure you're ready for the next election.</p>
       <a href="https://github.com/kentbrew/deathcount/blob/master/README.md" target="_blank">About</a> - 
       <a href="https://twitter.com/kentbrew" target="_blank">Contact</a> - 
       <a href="https://neocities.org" target="_blank">Hosting</a>
@@ -69,21 +70,7 @@
       bounds = [75000, 150000, 300000, 600000, 1200000, 2400000, 4800000],
       hd = document.getElementById('hd'),
       bd = document.getElementById('bd'),
-      // return days, hours, minutes, and second until an event
-      // expects a parse-able string like "Nov 3, 2020" or "Nov 3, 2020 12:34:56"
-      howLong = when => {
-        const dMs = new Date(when).getTime()-Date.now(), 
-        dS = ~~(dMs / 1000),
-        dM = ~~(dS / 60),
-        dH = ~~(dM / 60),
-        dD = ~~(dH / 24);
-        return {
-          days: dD,
-          hours: dH % (dD * 24),
-          minutes: dM % (dH * 60),
-          seconds: dS % (dM * 60)
-        };
-      },
+      ct = document.getElementById('ct'),
       // a list of properties for which we're going to draw a map. Each needs a name, latitude, and a map ID
       properties = [ {
           name: "Mar-a-Lago",
@@ -164,6 +151,39 @@
         ctx.stroke();
         return canvas;
       },
+      // return days, hours, minutes, and second until an event
+      howLong = when => {
+        // expects a parse-able string like "Nov 3, 2020" or "Nov 3, 2020 12:34:56"
+        const dMs = new Date(when).getTime() - Date.now(), 
+        dS = ~~(dMs / 1000),
+        dM = ~~(dS / 60),
+        dH = ~~(dM / 60),
+        dD = ~~(dH / 24);
+        return {
+          days: dD,
+          hours: dH % (dD * 24),
+          minutes: dM % (dH * 60),
+          seconds: dS % (dM * 60)
+        };
+      },
+      // add "s" to noun when needed
+      getPlural = (noun, count) => {
+        let suffix = "";
+        if (count !== 1) {
+          suffix = "s";
+        }
+        return `${count} ${noun}${suffix}`;
+      },
+      // update the counter
+      updateCounter = () => {
+        until = howLong("Nov 3, 2020");
+        ct.innerHTML = `${getPlural("day", until.days)},
+          ${getPlural("hour", until.hours)},
+          ${getPlural("minute", until.minutes)},
+          and ${getPlural("second", until.seconds)}
+          remain until the next election.</p>`;
+        window.setTimeout(updateCounter, 1000);
+      },
       // render maps 
       render = dead => {
         let circ = "";
@@ -176,8 +196,8 @@
         });
         hd.innerHTML += `<p>${formatNumber(dead)} Americans <a href="https://www.cdc.gov/covid-data-tracker/" target="_blank">have died of COVID-19</a> on Donald Trump's watch so far.</p>
           <p>If you laid them out head to toe, they would make a circle ${circ} miles around.</p>
-          <p>Here's what that ${circ}-mile circle would look like around some Trump properties.</p>
-          <p>The size of the circle is up to us. ${howLong("Nov 3, 2020").days} days remain until the next election.</p>`;
+          <p>Here's what that ${circ}-mile circle would look like around some Trump properties.</p>`;
+        updateCounter();
       },
       // let's get this party started
       init = () => {
