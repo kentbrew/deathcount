@@ -17,9 +17,10 @@ Shoutouts to <a href="https://www.mapdevelopers.com/draw-circle-tool.php">Map De
 
 This could be the base of a second-by-second countdown clock
 
-````// expects a parse-able string like "Nov 3, 2020" or "Nov 3, 2020 12:34:56"
+```
+// expects a parse-able string like "Nov 3, 2020" or "Nov 3, 2020 12:34:56"
 howLong = when => {
-  const dMs = new Date(when).getTime()-Date.now(), 
+  const dMs = new Date(when).getTime() - Date.now(), 
   dS = ~~(dMs / 1000),
   dM = ~~(dS / 60),
   dH = ~~(dM / 60),
@@ -30,4 +31,5 @@ howLong = when => {
     minutes: dM % (dH * 60),
     seconds: dS % (dM * 60)
   };
-};````
+};
+```
