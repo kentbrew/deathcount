@@ -21,10 +21,10 @@ This could be the base of a second-by-second countdown clock
 // expects a parse-able string like "Nov 3, 2020" or "Nov 3, 2020 12:34:56"
 howLong = when => {
   const dMs = new Date(when).getTime() - Date.now(), 
-  dS = ~~(dMs / 1000),
-  dM = ~~(dS / 60),
-  dH = ~~(dM / 60),
-  dD = ~~(dH / 24);
+    dS = ~~(dMs / 1000),
+    dM = ~~(dS / 60),
+    dH = ~~(dM / 60),
+    dD = ~~(dH / 24);
   return {
     days: dD,
     hours: dH % (dD * 24),
