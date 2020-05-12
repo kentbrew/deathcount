@@ -69,16 +69,31 @@
       bounds = [75000, 150000, 300000, 600000, 1200000, 2400000, 4800000],
       hd = document.getElementById('hd'),
       bd = document.getElementById('bd'),
+      // return days, hours, minutes, and second until an event
+      // expects a parse-able string like "Nov 3, 2020" or "Nov 3, 2020 12:34:56"
+      howLong = when => {
+        const dMs = new Date(when).getTime()-Date.now(), 
+        dS = ~~(dMs / 1000),
+        dM = ~~(dS / 60),
+        dH = ~~(dM / 60),
+        dD = ~~(dH / 24);
+        return {
+          days: dD,
+          hours: dH % (dD * 24),
+          minutes: dM % (dH * 60),
+          seconds: dS % (dM * 60)
+        };
+      },
       // a list of properties for which we're going to draw a map. Each needs a name, latitude, and a map ID
       properties = [ {
           name: "Mar-a-Lago",
           lat: 26.677084
         }, {
-          name: "Trump International Hotel, Las Vegas",
-          lat: 36.127671
-        }, {
           name: "Trump International Hotel, Washington DC",
           lat: 38.8942404
+        }, {
+          name: "Trump International Hotel, Las Vegas",
+          lat: 36.127671
         }, {
           name: "Trump National Golf Club, Bedminster",
           lat: 40.653755
@@ -161,7 +176,8 @@
         });
         hd.innerHTML += `<p>${formatNumber(dead)} Americans <a href="https://www.cdc.gov/covid-data-tracker/" target="_blank">have died of COVID-19</a> on Donald Trump's watch so far.</p>
           <p>If you laid them out head to toe, they would make a circle ${circ} miles around.</p>
-          <p>Here's what that ${circ}-mile circle would look like around some Trump properties.</p>`;
+          <p>Here's what that ${circ}-mile circle would look like around some Trump properties.</p>
+          <p>The size of the circle is up to us. ${howLong("Nov 3, 2020").days} days remain until the next election.</p>`;
       },
       // let's get this party started
       init = () => {
