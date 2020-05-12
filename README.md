@@ -15,21 +15,38 @@ Shoutouts to <a href="https://www.mapdevelopers.com/draw-circle-tool.php">Map De
 
 ### How Long Until....
 
-This could be the base of a second-by-second countdown clock
+The countdown timer was fun to write and seems like it will come in handy elsewhere:
 
-```
-// expects a parse-able string like "Nov 3, 2020" or "Nov 3, 2020 12:34:56"
+```// return days, hours, minutes, and second until an event
 howLong = when => {
+  // expects a parse-able string like "Nov 3, 2020" or "Nov 3, 2020 12:34:56"
   const dMs = new Date(when).getTime() - Date.now(), 
-    dS = ~~(dMs / 1000),
-    dM = ~~(dS / 60),
-    dH = ~~(dM / 60),
-    dD = ~~(dH / 24);
+  dS = ~~(dMs / 1000),
+  dM = ~~(dS / 60),
+  dH = ~~(dM / 60),
+  dD = ~~(dH / 24);
   return {
     days: dD,
     hours: dH % (dD * 24),
     minutes: dM % (dH * 60),
     seconds: dS % (dM * 60)
   };
-};
-```
+},
+// add "s" to noun when needed
+getPlural = (noun, count) => {
+  let suffix = "";
+  if (count !== 1) {
+    suffix = "s";
+  }
+  return `${count} ${noun}${suffix}`;
+},
+// update the counter
+updateCounter = () => {
+  until = howLong("Nov 3, 2020");
+  ct.innerHTML = `${getPlural("day", until.days)},
+    ${getPlural("hour", until.hours)},
+    ${getPlural("minute", until.minutes)},
+    and ${getPlural("second", until.seconds)}
+    remain until the next election.</p>`;
+  window.setTimeout(updateCounter, 1000);
+}```
