@@ -49,4 +49,4 @@ updateCounter = () => {
     and ${getPlural("second", until.seconds)}
     remain until the next election.</p>`;
   window.setTimeout(updateCounter, 1000);
-}```
+}
