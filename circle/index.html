@@ -21,28 +21,42 @@
     <meta property="og:type" content="website" />
     <style>
       body {
-        text-align: center;
-        font-family: Tahoma, "Helvetica Neue", Sans-serif;
         background: #000;
         color: #fff;
+        font-family: Tahoma, "Helvetica Neue", Sans-serif;
         margin: 2vw 2vh;
+        text-align: center;
       }
       a {
         color: #ff0;
         text-decoration: none;
       }
       div.tile {
-        height: 440px;
-        width: 420px;
-        margin: 20px 10px 10px;
         display: inline-block;
+        height: 440px;
+        margin: 20px 10px 10px;
+        width: 420px;
       }
       div.map {
-        height: 400px;
-        width: 400px;
         background: transparent url() 0 0 no-repeat;
-        margin: 10px;
         border-radius: 10px;
+        height: 400px;
+        margin: 10px;
+        position: relative;
+        width: 400px;
+      }
+      div.map span {
+        color: #000;
+        font-size: 100px;
+        font-family: "Times New Roman", serif;
+        height: 100px;
+        left: 50%;
+        line-height: 100px;
+        margin-top: -50px;
+        margin-left: -50px;
+        position: absolute;
+        top: 50%;
+        width: 100px;
       }
       #ft {
         margin-top: 20px;
@@ -63,8 +77,8 @@
     <script>
       // in case we don't get data
       const mostRecent = {
-        date: "9 May 2020",
-        dead: 77034,
+        date: "13 May 2020",
+        dead: 82246,
       },
       // 
       bounds = [75000, 150000, 300000, 600000, 1200000, 2400000, 4800000],
@@ -72,25 +86,33 @@
       bd = document.getElementById('bd'),
       ct = document.getElementById('ct'),
       // a list of properties for which we're going to draw a map. Each needs a name, latitude, and a map ID
+      // maps will appear on the page in the order they appear in this array
       properties = [ {
-          name: "Mar-a-Lago",
-          lat: 26.677084
+          name: "Trump Tower, Manhattan",
+          lat: 40.762315,
+          map: 4
         }, {
           name: "Trump International Hotel, Washington DC",
-          lat: 38.8942404
+          lat: 38.8942404,
+          map: 2
         }, {
           name: "Trump International Hotel, Las Vegas",
-          lat: 36.127671
+          lat: 36.127671,
+          map: 1
         }, {
           name: "Trump National Golf Club, Bedminster",
-          lat: 40.653755
-        }, {
-          name: "Trump Tower, Manhattan",
-          lat: 40.762315
+          lat: 40.653755,
+          map: 3
         }, {
           name: "Trump International Hotel & Tower, Chicago",
-          lat: 41.8888012
-      } ],
+          lat: 41.8888012,
+          map: 5
+        }, {
+          name: "Mar-a-Lago",
+          lat: 26.677084,
+          map: 0
+        }
+      ],
       // Format a long number with commas, US-style
       formatNumber = n => {
         return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -129,6 +151,7 @@
         tile.className = "tile";
         const map = document.createElement('DIV');
         map.className = "map";
+        map.innerHTML = "<span>T</span>";
         map.style.backgroundImage = `url("./zoom_${x}.jpg")`;
         map.style.backgroundPositionY = `${(0 - y) * 400}px`;
         tile.appendChild(map);
@@ -187,9 +210,9 @@
       // render maps 
       render = dead => {
         let circ = "";
-        properties.filter((prop, index) => {
+        properties.filter((prop) => {
           let zar = getZoomAndRadiusFor(dead, prop.lat);
-          let tile = makeMap(zar.zoomLevel, index, prop.name);
+          let tile = makeMap(zar.zoomLevel, prop.map, prop.name);
           circ = zar.circInMiles;
           tile.getElementsByClassName('map')[0].appendChild(makeCircle(zar.radius));
           bd.appendChild(tile);
