@@ -31,6 +31,10 @@
         color: #ff0;
         text-decoration: none;
       }
+      span.bignum {
+        display: block;
+        font-size: 16vw;
+      }
       div.tile {
         display: inline-block;
         height: 440px;
@@ -71,14 +75,15 @@
     <p>Had enough? Check with <a href="https://vote.org" target="_blank">Vote.org</a> to be sure your voice is heard.</p>
     <div id="ft">
       <a href="https://github.com/kentbrew/deathcount/blob/master/README.md" target="_blank">About</a> - 
+      <a href="https://www.coronatracker.com/country/united-states/" target="_blank">Data</a> - 
       <a href="https://twitter.com/kentbrew" target="_blank">Contact</a> - 
       <a href="https://neocities.org" target="_blank">Hosting</a>
     </div>
     <script>
       // in case we don't get data
       const mostRecent = {
-        date: "22 Jun 2020",
-        dead: 119923
+        date: "30 Aug 2020",
+        dead: 186883
       },
       // 
       bounds = [75000, 150000, 300000, 600000, 1200000, 2400000, 4800000],
@@ -217,7 +222,7 @@
           tile.getElementsByClassName('map')[0].appendChild(makeCircle(zar.radius));
           bd.appendChild(tile);
         });
-        hd.innerHTML += `<p>${formatNumber(dead)} Americans <a href="https://www.cdc.gov/covid-data-tracker/" target="_blank">have died of COVID-19</a> on Donald Trump's watch so far.</p>
+        hd.innerHTML += `<p><span class="bignum">${formatNumber(dead)}</span> Americans <a href="https://www.coronatracker.com/country/united-states/" target="_blank">have died of COVID-19</a> on Donald Trump's watch so far.</p>
           <p>If you laid them out head to toe, they would make a circle ${circ} miles around.</p>
           <p>Here's what that ${circ}-mile circle would look like around some Trump properties.</p>`;
         updateCounter();
@@ -225,29 +230,25 @@
       // let's get this party started
       init = () => {
         // Fetch the data
-        fetch('https://www.cdc.gov/covid-data-tracker/Content/CoronaViewJson_01/US_MAP_DATA.json')
+        fetch('https://api.coronatracker.com/v3/stats/worldometer/country?countryCode=US')
           // Massage the result
           .then(response => response.json())
           // Hand it off for processing
           .then(result => {
             let found = false;
-            // Do we have an array of data?
-            if (result.US_MAP_DATA) {
-              // Find the right one
-              result.US_MAP_DATA.filter(item => {
-                if (item.abbr === "US") {
-                  // Render just the US death count
-                  render(item.tot_death);
-                  found = true;
-                }
-              })
+            if (result[0] && result[0].totalDeaths) {
+              render(result[0].totalDeaths);
+              found = true;
             }
             return found;
           }).then(found => {
             if (!found) {
-              hd.innerHTML = "<p>Having trouble getting data from CDC, so here's what we saw on " + mostRecent.date + ".</p>";
+              hd.innerHTML = "<p>Having trouble getting data, so here's what we saw on " + mostRecent.date + ".</p>";
               render(mostRecent.dead);
             }
+          }).catch(error => {
+            console.log(error);
+            render(mostRecent.dead)
           });
       };
         
